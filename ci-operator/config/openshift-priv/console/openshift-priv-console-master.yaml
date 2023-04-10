@@ -35,17 +35,17 @@ images:
 promotion:
   additional_images:
     console-tests: src
-  name: 4.13-priv
+  name: 4.14-priv
   namespace: ocp-private
 releases:
   initial:
     integration:
-      name: 4.13-priv
+      name: 4.14-priv
       namespace: ocp-private
   latest:
     integration:
       include_built_images: true
-      name: 4.13-priv
+      name: 4.14-priv
       namespace: ocp-private
 resources:
   '*':
@@ -96,9 +96,9 @@ tests:
       resources:
         requests:
           cpu: 100m
-      timeout: 5h0m0s
+      timeout: 6h0m0s
     workflow: ipi-gcp
-  timeout: 6h0m0s
+  timeout: 8h0m0s
 - as: ceph-storage-plugin
   run_if_changed: frontend/packages/ceph-storage-plugin
   steps:

@@ -73,10 +73,10 @@ case "$CONFIG_TYPE" in
 			| .platform.openstack.externalDNS = [\"1.1.1.1\", \"1.0.0.1\"]
 			| .platform.openstack.externalNetwork = \"${OPENSTACK_EXTERNAL_NETWORK}\"
 			| .platform.openstack.ingressFloatingIP = \"${INGRESS_IP}\"
-			| .platform.openstack.lbFloatingIP = \"${API_IP}\"
+			| .platform.openstack.apiFloatingIP = \"${API_IP}\"
 		" "$INSTALL_CONFIG"
 		;;
-	proxy)
+	proxy*)
 		yq --yaml-output --in-place ".
 			| .networking.machineNetwork[0].cidr = \"$(<"${SHARED_DIR}"/MACHINES_SUBNET_RANGE)\"
 			| .platform.openstack.apiVIP = \"${API_IP}\"
@@ -93,6 +93,13 @@ case "$CONFIG_TYPE" in
 				| .additionalTrustBundle = \"$(<"${SHARED_DIR}/domain.crt")\"
 			" "$INSTALL_CONFIG"
 		fi
+
+		if [[ -f "${SHARED_DIR}/LB_HOST" ]]; then
+    			yq --yaml-output --in-place ".
+    			    | .platform.openstack.loadBalancer.type = \"UserManaged\"
+    			    | .featureSet = \"TechPreviewNoUpgrade\"
+    			" "$INSTALL_CONFIG"
+		fi
 		;;
 	*)
 		echo "No valid install config type specified. Please check CONFIG_TYPE"
@@ -107,6 +114,13 @@ if [[ "${ZONES_COUNT}" -gt '0' ]]; then
 		| .compute[0].platform.openstack.rootVolume.type = \"tripleo\"
 		| .compute[0].platform.openstack.rootVolume.size = 30
 		| .compute[0].platform.openstack.rootVolume.zones = ${ZONES_JSON}
+	" "$INSTALL_CONFIG"
+fi
+
+if [[ -f "${SHARED_DIR}/failure_domain.json" ]]; then
+	yq --yaml-output --in-place ".
+		| .controlPlane.platform.openstack += $(<"${SHARED_DIR}/failure_domain.json")
+		| .featureSet = \"TechPreviewNoUpgrade\"
 	" "$INSTALL_CONFIG"
 fi
 

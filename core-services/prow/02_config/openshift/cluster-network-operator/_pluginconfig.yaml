@@ -5,15 +5,14 @@ label:
       - openshift-patch-managers
       allowed_users:
       - jcaamano
-      - squeed
       - trozet
       - MaysaMacedo
+      - dougbtv
       label: backport-risk-assessed
     - allowed_users:
       - mffiedler
       - rbbratta
       - zhaozhanqi
-      - brahaney
       - weliang1
       - anuragthehatter
       - huiran0826

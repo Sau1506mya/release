@@ -73,7 +73,7 @@ releases:
       version: 4.9.45
   oldest-supported-z-rollback:
     release:
-      channel: fast
+      channel: candidate
       version: 4.9.7
 resources:
   '*':
@@ -340,7 +340,7 @@ tests:
           memory: 200Mi
     workflow: ipi-aws
 - as: e2e-gcp-rt
-  cron: 16 10 * * *
+  cron: 16 10 */14 * *
   steps:
     cluster_profile: gcp-openshift-gce-devel-ci-2
     env:

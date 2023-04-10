@@ -63,6 +63,8 @@ aliases:
   - dgoodwin
   - xueqzhan
   - DennisPeriquet
+  - neisw
+  - deepsm007
   assisted-cicd:
   - romfreiman
   - celebdor
@@ -171,7 +173,6 @@ aliases:
   - tsmetana
   storage-reviewers:
   - bertinatto
-  - derek-pryor
   - dobsonj
   - gnufied
   - jsafrane
@@ -201,7 +202,6 @@ aliases:
   - dougbtv
   - jluhrsen
   - knobunc
-  - squeed
   - trozet
   sdn-reviewers:
   - abhat
@@ -210,7 +210,6 @@ aliases:
   - dougbtv
   - jluhrsen
   - knobunc
-  - squeed
   - trozet
   - JacobTanenbaum
   - jcaamano
@@ -256,3 +255,54 @@ aliases:
   - yxun
   - dgn
   - bartoszmajsak
+  cspi-qe-ocp-lp:
+  - calebevans
+  - madunn
+  - btjd
+  - chetna14manku
+  - ascerra
+  - smatula
+  - liswang89
+  - adtandale
+  - Sau1506mya
+  - amp-rh
+  - macharya0907
+  openstack-k8s-operators-approvers:
+  - abays
+  - arxcruz
+  - cjeanner
+  - dprince
+  - marios
+  - olliewalsh
+  - raukadah
+  - rlandy
+  - Sandeepyadav93
+  - stuggi
+  - viroel
+  openstack-k8s-operators-reviewers:
+  - abays
+  - arxcruz
+  - cjeanner
+  - dprince
+  - marios
+  - olliewalsh
+  - raukadah
+  - rlandy
+  - Sandeepyadav93
+  - stuggi
+  - viroel
+  cspi-msi-approvers:
+  - myakove
+  - rnetser
+  cspi-msi-reviewers:
+  - myakove
+  - rnetser
+  - omrirh
+  - ILpinto
+  - oharan2
+  - shakyav
+  amq-streams-approvers:
+  - Frawless
+  - im-konge
+  - see-quick
+  - jankalinic

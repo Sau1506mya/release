@@ -5,19 +5,22 @@ build_root:
     namespace: openshift
     tag: golang-1.18
 images:
-- dockerfile_literal: FROM bin
+- dockerfile_literal: |
+    FROM registry.ci.openshift.org/ocp/4.14:cli AS cli
+    FROM bin
+    COPY --from=cli /usr/bin/oc /bin/oc
   from: bin
   to: openstack-tests
 promotion:
   additional_images:
     openstack-tests: bin
-  name: "4.13"
+  name: "4.14"
   namespace: ocp
 releases:
   latest:
     integration:
       include_built_images: true
-      name: "4.13"
+      name: "4.14"
       namespace: ocp
 resources:
   '*':

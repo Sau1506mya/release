@@ -11,9 +11,6 @@ ref:
       memory: 128Mi
   grace_period: 600
   env:
-  - name: IPI
-    default: "true"
-    documentation: ""
   - name: INTERNAL_NET_IP
     default: "192.168.90.1"
     documentation: ""
@@ -42,6 +39,8 @@ ref:
       The provisioning host and the auxiliary host may be the same host, but the provisioning host's instruction set
       architecture must match the one of the cluster nodes and is not supported for multi-arch compute nodes 
       scenarios yet.
+  - name: DISCONNECTED
+    default: "false"
   dependencies:
     - name: "release:latest"
       env: OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE
