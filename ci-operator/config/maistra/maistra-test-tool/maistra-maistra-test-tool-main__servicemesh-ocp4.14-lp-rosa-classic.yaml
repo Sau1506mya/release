@@ -54,10 +54,11 @@ tests:
       FIREWATCH_DEFAULT_JIRA_PROJECT: LPINTEROP
       OCM_LOGIN_ENV: staging
       OPENSHIFT_VERSION: "4.14"
-      OPERATORS: "[\n    {\"name\": \"kiali-ossm\", \"source\": \"redhat-operators\",
-        \"channel\": \"stable\", \"install_namespace\": \"openshift-operators\"},
-        \ \n    {\"name\": \"servicemeshoperator\", \"source\": \"redhat-operators\",
-        \"channel\": \"stable\", \"install_namespace\": \"openshift-operators\"}\n]\n"
+      OPERATORS: |
+        [
+            {"name": "kiali-ossm", "source": "redhat-operators", "channel": "stable", "install_namespace": "openshift-operators"},
+            {"name": "servicemeshoperator", "source": "redhat-operators", "channel": "stable", "install_namespace": "openshift-operators"}
+        ]
       ROSA_LOGIN_ENV: staging
     test:
     - chain: install-operators
