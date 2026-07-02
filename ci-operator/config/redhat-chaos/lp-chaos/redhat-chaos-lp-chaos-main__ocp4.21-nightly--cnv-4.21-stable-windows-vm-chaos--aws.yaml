@@ -1,0 +1,59 @@
+base_images:
+  cli:
+    name: "4.21"
+    namespace: ocp
+    tag: cli
+build_root:
+  image_stream_tag:
+    name: release
+    namespace: openshift
+    tag: rhel-9-release-golang-1.24-openshift-4.21
+images:
+  items:
+  - dockerfile_literal: |
+      FROM cli
+      RUN yum install -y openssh-clients && \
+          yum install -y jq yq && \
+          yum clean all && \
+          rm -rf /var/cache/yum
+    from: cli
+    to: cli-plus-tools
+releases:
+  latest:
+    candidate:
+      product: ocp
+      stream: nightly
+      version: "4.21"
+resources:
+  '*':
+    limits:
+      memory: 4Gi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+tests:
+- always_run: false
+  as: windows-vm-chaos
+  steps:
+    cluster_profile: aws-lp-chaos
+    env:
+      BASE_DOMAIN: chaos.lp.devcluster.openshift.com
+      CHAOS_TEAM_NAME: lp-chaos
+      CNV_VERSION: "4.21"
+      COMPUTE_NODE_TYPE: m5.metal
+      LPC_LP_CNV__VM__NS: benchmark-runner
+      LPC_LP_CNV__VM__PREFIX: windows-chaos-vm
+      LPC_LP_CNV__VM__REPLICA_COUNT: "1"
+      LPC_LP_CNV__VM__WAIT_TIMEOUT: 30m
+      TARGET_NAMESPACE: benchmark-runner
+      TELEMETRY_GROUP: ocp4.21-nightly--cnv-4.21-stable-windows-vm-chaos--aws
+    test:
+    - ref: redhat-lp-chaos-lp-cnv-vm-create
+    - ref: redhat-chaos-kubevirt-outage
+    workflow: redhat-lp-chaos-ocp-installer-aws-cnv
+  timeout: 4h0m0s
+zz_generated_metadata:
+  branch: main
+  org: redhat-chaos
+  repo: lp-chaos
+  variant: ocp4.21-nightly--cnv-4.21-stable-windows-vm-chaos--aws
