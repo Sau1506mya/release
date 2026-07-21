@@ -1,0 +1,160 @@
+---
+# Windows 11 Scratch Provisioning VirtualMachine
+#
+# This manifest demonstrates the cloud-native approach to Windows VM provisioning
+# on OpenShift Virtualization using:
+# 1. volumeMode: Block for high-performance storage
+# 2. VirtIO-Win container disk injection for driver availability
+# 3. DataVolume for declarative storage provisioning
+# 4. QEMU Guest Agent for lifecycle management
+#
+# Usage:
+#   oc create namespace windows-image-builder
+#   oc apply -f 01-windows11-scratch-vm.yaml
+#   # Access via VNC: virtctl vnc windows11-golden-builder
+#
+
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: windows11-golden-builder
+  namespace: windows-image-builder
+  labels:
+    app: windows-image-builder
+    os: windows11
+    purpose: golden-image
+spec:
+  running: false  # Set to true to start VM, false after sysprep
+  dataVolumeTemplates:
+  - metadata:
+      name: windows11-golden-disk
+    spec:
+      pvc:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 60Gi
+        storageClassName: gp3-csi  # Use high-performance storage class
+        volumeMode: Block  # Block mode bypasses filesystem overhead
+      source:
+        blank: {}  # Start with blank disk for scratch installation
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: windows11-golden-builder
+        app: windows-image-builder
+    spec:
+      domain:
+        cpu:
+          cores: 4
+          sockets: 1
+          threads: 1
+        memory:
+          guest: 8Gi
+        devices:
+          disks:
+          # Primary OS disk (blank block device)
+          - name: rootdisk
+            disk:
+              bus: virtio
+            bootOrder: 1
+          # Windows 11 Installer ISO (customize with your ISO source)
+          - name: windows-installer
+            cdrom:
+              bus: sata
+            bootOrder: 2
+          # VirtIO-Win drivers container disk (CRITICAL for driver injection)
+          - name: virtio-drivers
+            cdrom:
+              bus: sata
+            bootOrder: 3
+          # CloudBase-Init configuration (optional, for automated setup)
+          - name: cloudbase-init-config
+            cdrom:
+              bus: sata
+          interfaces:
+          - name: default
+            masquerade: {}
+            model: virtio  # VirtIO network requires NetKVM driver from virtio-win
+          tpm:
+            # Required for Windows 11
+            persistent: true
+          inputs:
+          - type: tablet
+            bus: usb
+            name: tablet
+        features:
+          acpi: {}
+          apic: {}
+          hyperv:
+            relaxed: {}
+            spinlocks:
+              spinlocks: 8191
+            vapic: {}
+            vpindex: {}
+            frequencies: {}
+            reenlightenment: {}
+            tlbflush: {}
+            ipi: {}
+            runtime: {}
+            synic: {}
+            synictimer:
+              direct: {}
+            reset: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi:
+              secureBoot: false  # Disable for driver installation flexibility
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 4
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+      # Block volume from DataVolumeTemplate
+      - name: rootdisk
+        dataVolume:
+          name: windows11-golden-disk
+      # Windows 11 ISO - Method 1: HTTP source
+      - name: windows-installer
+        containerDisk:
+          image: your-registry.example.com/windows11-iso:23H2
+          # Alternative: Use DataVolume with HTTP source
+          # dataVolume:
+          #   name: windows11-iso
+      # VirtIO-Win drivers (ESSENTIAL - provides viostor and NetKVM)
+      - name: virtio-drivers
+        containerDisk:
+          image: registry.redhat.io/container-native-virtualization/virtio-win:latest
+      # CloudBase-Init config (optional)
+      - name: cloudbase-init-config
+        cloudInitNoCloud:
+          userData: |
+            #cloud-config
+            # Placeholder - CloudBase-Init runs after first boot
+---
+# Alternative DataVolume for Windows ISO from HTTP/S3
+# Uncomment and customize if not using container disk
+#
+# apiVersion: cdi.kubevirt.io/v1beta1
+# kind: DataVolume
+# metadata:
+#   name: windows11-iso
+#   namespace: windows-image-builder
+# spec:
+#   source:
+#     http:
+#       url: "https://your-s3-bucket.s3.amazonaws.com/ISOs/Win11_23H2_EnglishInternational_x64.iso"
+#       secretRef: s3-credentials  # Optional, if authentication required
+#   pvc:
+#     accessModes:
+#     - ReadOnlyMany
+#     resources:
+#       requests:
+#         storage: 6Gi
+#     storageClassName: gp3-csi

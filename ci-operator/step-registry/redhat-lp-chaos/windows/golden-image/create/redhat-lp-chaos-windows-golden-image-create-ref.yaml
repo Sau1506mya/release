@@ -1,0 +1,47 @@
+ref:
+  as: redhat-lp-chaos-windows-golden-image-create
+  from: cli-plus-tools
+  commands: redhat-lp-chaos-windows-golden-image-create-commands.sh
+  env:
+  - name: WIN_GOLDEN_IMAGE_VERSION
+    default: "v1.0.0"
+    documentation: "Version tag for the golden image (e.g., v1.0.0)"
+  - name: WIN_GOLDEN_IMAGE_NS
+    default: "windows-image-builder"
+    documentation: "Namespace for Windows image builder VM"
+  - name: WIN_GOLDEN_VM_NAME
+    default: "windows11-golden-builder"
+    documentation: "Name of the Windows builder VM"
+  - name: WIN_GOLDEN_S3_BUCKET
+    default: ""
+    documentation: "S3 bucket for storing golden image (required)"
+  - name: WIN_GOLDEN_S3_PREFIX
+    default: "golden-images/windows11"
+    documentation: "S3 prefix for golden image storage"
+  - name: WIN_GOLDEN_DATASOURCE_NS
+    default: "openshift-virtualization-os-images"
+    documentation: "Namespace where DataSource will be created"
+  - name: WIN_GOLDEN_DATASOURCE_NAME
+    default: "windows11-golden"
+    documentation: "Name of the DataSource resource"
+  - name: WIN_GOLDEN_EXPORT_TIMEOUT
+    default: "30m"
+    documentation: "Timeout for VM export operation"
+  - name: WIN_ISO_SOURCE
+    default: ""
+    documentation: "Container image or HTTP URL for Windows 11 ISO"
+  - name: VIRTIO_WIN_IMAGE
+    default: "registry.redhat.io/container-native-virtualization/virtio-win:latest"
+    documentation: "VirtIO drivers container image"
+  credentials:
+  - mount_path: /var/run/secrets/aws
+    name: aws-s3-credentials
+    namespace: test-credentials
+  resources:
+    requests:
+      cpu: 200m
+      memory: 200Mi
+  documentation: >-
+    This step orchestrates cloud-native Windows 11 golden image creation using OpenShift Virtualization APIs.
+    It deploys a VirtualMachine with volumeMode: Block storage and VirtIO driver injection, waits for manual
+    installation and sysprep completion, then exports the generalized image to S3 and creates a cluster-wide DataSource.

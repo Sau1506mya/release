@@ -1,0 +1,19 @@
+ref:
+  as: redhat-lp-chaos-windows-golden-image-export
+  from: cli-plus-tools
+  commands: redhat-lp-chaos-windows-golden-image-export-commands.sh
+  env:
+  - name: WIN_GOLDEN_EXPORT_TIMEOUT
+    default: "30m"
+    documentation: "Timeout for VM export operation"
+  credentials:
+  - mount_path: /var/run/secrets/aws
+    name: aws-s3-credentials
+    namespace: test-credentials
+  resources:
+    requests:
+      cpu: 200m
+      memory: 200Mi
+  documentation: >-
+    Exports the generalized Windows VM to qcow2 format using VirtualMachineExport API
+    and uploads to S3. Must run after Windows installation and sysprep completion.

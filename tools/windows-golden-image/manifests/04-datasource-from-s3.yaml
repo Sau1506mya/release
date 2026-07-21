@@ -1,0 +1,121 @@
+---
+# DataSource manifest for making the generalized Windows 11 image
+# available as a cluster-wide template
+#
+# This is the final artifact that your CI jobs will reference
+# via LPC_LP_CNV__VM__DV_SOURCE_NAME and LPC_LP_CNV__VM__DV_SOURCE_NS
+#
+# Prerequisites:
+# 1. S3 credentials secret created (see s3-credentials/)
+# 2. qcow2 image uploaded to S3
+#
+# Usage:
+#   # Update the S3 URL in the PVC annotation below
+#   oc apply -f 04-datasource-from-s3.yaml
+#
+
+---
+# Step 1: Create PVC that imports from S3
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: windows11-golden-import-pvc
+  namespace: openshift-virtualization-os-images
+  labels:
+    app: virtualization
+    os: windows11
+    image-type: golden
+  annotations:
+    # CDI will import from this HTTP/S3 URL
+    cdi.kubevirt.io/storage.import.endpoint: "https://your-bucket.s3.amazonaws.com/golden-images/windows11/v1.0.0/windows11-golden.qcow2"
+    # Reference to S3 credentials secret
+    cdi.kubevirt.io/storage.import.secretName: "s3-credentials"
+    # Optional: Verify checksum
+    cdi.kubevirt.io/storage.import.checksum: "sha256:REPLACE_WITH_ACTUAL_SHA256"
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 60Gi
+  storageClassName: gp3-csi
+  volumeMode: Block
+
+---
+# Step 2: Create DataSource pointing to the imported PVC
+# This makes the image available cluster-wide as a template
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataSource
+metadata:
+  name: windows11-golden
+  namespace: openshift-virtualization-os-images
+  labels:
+    app: virtualization
+    os: windows11
+    version: "11-23h2"
+    image-type: golden
+  annotations:
+    description: "Windows 11 23H2 golden image with VirtIO drivers, QEMU Guest Agent, and CloudBase-Init"
+    created-by: "windows-image-builder-pipeline"
+    version: "1.0.0"
+spec:
+  source:
+    pvc:
+      name: windows11-golden-import-pvc
+      namespace: openshift-virtualization-os-images
+
+---
+# Optional: Create a VirtualMachineClusterInstancetype for Windows workloads
+# This defines standardized resource configurations
+apiVersion: instancetype.kubevirt.io/v1beta1
+kind: VirtualMachineClusterInstancetype
+metadata:
+  name: windows.large
+  labels:
+    instancetype.kubevirt.io/os-type: windows
+spec:
+  cpu:
+    guest: 4
+  memory:
+    guest: 8Gi
+
+---
+# Optional: Create a VirtualMachineClusterPreference for Windows 11
+# This defines OS-specific optimizations
+apiVersion: instancetype.kubevirt.io/v1beta1
+kind: VirtualMachineClusterPreference
+metadata:
+  name: windows.11
+  labels:
+    instancetype.kubevirt.io/os-type: windows
+    instancetype.kubevirt.io/os-version: "11"
+spec:
+  devices:
+    preferredDiskBus: virtio
+    preferredInterfaceModel: virtio
+    preferredInputBus: usb
+    preferredInputType: tablet
+  features:
+    preferredAcpi: {}
+    preferredApic: {}
+    preferredHyperv:
+      relaxed: {}
+      spinlocks:
+        spinlocks: 8191
+      vapic: {}
+      vpindex: {}
+      frequencies: {}
+      reenlightenment: {}
+      tlbflush: {}
+      ipi: {}
+      runtime: {}
+      synic: {}
+      synictimer:
+        direct: {}
+      reset: {}
+    preferredSmm: {}
+  firmware:
+    preferredUseBios: false
+    preferredUseBiosSerial: false
+    preferredUseEfi: true
+    preferredUseSecureBoot: false

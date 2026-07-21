@@ -1,0 +1,108 @@
+---
+# Windows 11 Template-Based Fast Track
+#
+# This manifest demonstrates cloning from an existing Windows baseline image
+# Use this when you already have a Windows template/snapshot in your cluster
+#
+# Usage:
+#   oc apply -f 02-windows11-template-clone-vm.yaml
+#
+
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: windows11-golden-from-template
+  namespace: windows-image-builder
+  labels:
+    app: windows-image-builder
+    os: windows11
+    purpose: golden-image
+    source: template-clone
+spec:
+  running: false
+  dataVolumeTemplates:
+  - metadata:
+      name: windows11-cloned-disk
+    spec:
+      pvc:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 60Gi
+        storageClassName: gp3-csi
+        volumeMode: Block
+      source:
+        # Clone from existing PVC
+        pvc:
+          name: windows11-baseline-pvc
+          namespace: openshift-virtualization-os-images
+        # Alternative: Clone from snapshot
+        # snapshot:
+        #   name: windows11-baseline-snapshot
+        #   namespace: openshift-virtualization-os-images
+  template:
+    metadata:
+      labels:
+        kubevirt.io/vm: windows11-golden-from-template
+        app: windows-image-builder
+    spec:
+      domain:
+        cpu:
+          cores: 4
+          sockets: 1
+          threads: 1
+        memory:
+          guest: 8Gi
+        devices:
+          disks:
+          - name: rootdisk
+            disk:
+              bus: virtio
+          - name: virtio-drivers
+            cdrom:
+              bus: sata
+          interfaces:
+          - name: default
+            masquerade: {}
+            model: virtio
+          tpm:
+            persistent: true
+        features:
+          acpi: {}
+          apic: {}
+          hyperv:
+            relaxed: {}
+            spinlocks:
+              spinlocks: 8191
+            vapic: {}
+            vpindex: {}
+            frequencies: {}
+            reenlightenment: {}
+            tlbflush: {}
+            ipi: {}
+            runtime: {}
+            synic: {}
+            synictimer:
+              direct: {}
+            reset: {}
+          smm:
+            enabled: true
+        firmware:
+          bootloader:
+            efi:
+              secureBoot: false
+        resources:
+          requests:
+            memory: 8Gi
+            cpu: 4
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+      - name: rootdisk
+        dataVolume:
+          name: windows11-cloned-disk
+      - name: virtio-drivers
+        containerDisk:
+          image: registry.redhat.io/container-native-virtualization/virtio-win:latest

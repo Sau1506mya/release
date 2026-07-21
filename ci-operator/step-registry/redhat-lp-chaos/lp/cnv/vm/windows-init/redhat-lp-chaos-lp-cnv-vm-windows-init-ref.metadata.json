@@ -1,0 +1,11 @@
+{
+	"path": "redhat-lp-chaos/lp/cnv/vm/windows-init/redhat-lp-chaos-lp-cnv-vm-windows-init-ref.yaml",
+	"owners": {
+		"approvers": [
+			"ieng-chaos"
+		],
+		"reviewers": [
+			"ieng-chaos"
+		]
+	}
+}

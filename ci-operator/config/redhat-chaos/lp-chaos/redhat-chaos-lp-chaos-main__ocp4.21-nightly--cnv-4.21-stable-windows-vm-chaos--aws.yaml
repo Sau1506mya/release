@@ -45,10 +45,15 @@ tests:
       LPC_LP_CNV__VM__PREFIX: windows-chaos-vm
       LPC_LP_CNV__VM__REPLICA_COUNT: "1"
       LPC_LP_CNV__VM__WAIT_TIMEOUT: 30m
+      LPC_LP_CNV__VM__INSTANCE_TYPE: windows.large
+      LPC_LP_CNV__VM__PREFERENCE: windows.11
+      LPC_LP_CNV__VM__DV_SOURCE_NAME: windows11-golden
+      LPC_LP_CNV__VM__DV_SOURCE_NS: openshift-virtualization-os-images
       TARGET_NAMESPACE: benchmark-runner
       TELEMETRY_GROUP: ocp4.21-nightly--cnv-4.21-stable-windows-vm-chaos--aws
     test:
     - ref: redhat-lp-chaos-lp-cnv-vm-create
+    - ref: redhat-lp-chaos-lp-cnv-vm-windows-init
     - ref: redhat-chaos-kubevirt-outage
     workflow: redhat-lp-chaos-ocp-installer-aws-cnv
   timeout: 4h0m0s

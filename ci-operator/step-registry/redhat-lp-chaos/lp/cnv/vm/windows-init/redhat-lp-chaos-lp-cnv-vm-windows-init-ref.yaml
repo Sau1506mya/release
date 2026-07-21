@@ -1,0 +1,27 @@
+ref:
+  as: redhat-lp-chaos-lp-cnv-vm-windows-init
+  from: cli-plus-tools
+  commands: redhat-lp-chaos-lp-cnv-vm-windows-init-commands.sh
+  env:
+  - name: LPC_LP_CNV__VM__NS
+    default: "benchmark-runner"
+    documentation: "Namespace where Windows VMs are created"
+  - name: LPC_LP_CNV__VM__PREFIX
+    default: "windows-chaos-vm"
+    documentation: "Prefix for Windows VM names"
+  - name: LPC_LP_CNV__WIN__INIT_TIMEOUT
+    default: "10m"
+    documentation: "Timeout waiting for Windows VMs to complete CloudBase-Init"
+  - name: LPC_LP_CNV__WIN__ADMIN_USER
+    default: "Administrator"
+    documentation: "Windows administrator username"
+  - name: LPC_LP_CNV__WIN__BENCHMARK_RUNNER_VERSION
+    default: "latest"
+    documentation: "Version of benchmark runner to install in Windows VM"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  documentation: >-
+    This step initializes Windows VMs after creation, ensuring CloudBase-Init has completed,
+    installing benchmark runner agents, and verifying Windows-specific configurations.

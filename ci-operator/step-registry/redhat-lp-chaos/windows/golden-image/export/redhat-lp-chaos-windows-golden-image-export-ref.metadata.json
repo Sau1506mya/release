@@ -1,0 +1,11 @@
+{
+	"path": "redhat-lp-chaos/windows/golden-image/export/redhat-lp-chaos-windows-golden-image-export-ref.yaml",
+	"owners": {
+		"approvers": [
+			"ieng-chaos"
+		],
+		"reviewers": [
+			"ieng-chaos"
+		]
+	}
+}

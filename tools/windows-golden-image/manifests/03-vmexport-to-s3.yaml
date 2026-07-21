@@ -1,0 +1,54 @@
+---
+# VirtualMachineExport for extracting generalized Windows image
+#
+# After sysprep completes and VM is shut down, use this to export
+# the PVC to qcow2 format for S3 upload
+#
+# Prerequisites:
+# 1. VM must be stopped (running: false)
+# 2. Sysprep must have completed successfully
+#
+# Usage:
+#   # Wait for VM to shutdown after sysprep
+#   oc patch vm windows11-golden-builder -p '{"spec":{"running":false}}'
+#
+#   # Create export
+#   oc apply -f 03-vmexport-to-s3.yaml
+#
+#   # Check export status
+#   oc get vmexport windows11-golden-export -w
+#
+#   # Download the exported image
+#   virtctl vmexport download windows11-golden-export --output=windows11-golden-v1.0.0.qcow2
+#
+
+apiVersion: export.kubevirt.io/v1alpha1
+kind: VirtualMachineExport
+metadata:
+  name: windows11-golden-export
+  namespace: windows-image-builder
+  labels:
+    app: windows-image-builder
+    export-type: golden-image
+spec:
+  source:
+    apiGroup: kubevirt.io
+    kind: VirtualMachine
+    name: windows11-golden-builder
+  # Token validity for download links
+  ttlDuration: 24h
+---
+# Alternative: Export specific PVC instead of entire VM
+# Use this if you want to export just the disk volume
+#
+# apiVersion: export.kubevirt.io/v1alpha1
+# kind: VirtualMachineExport
+# metadata:
+#   name: windows11-golden-pvc-export
+#   namespace: windows-image-builder
+# spec:
+#   source:
+#     apiGroup: ""
+#     kind: PersistentVolumeClaim
+#     name: windows11-golden-disk
+#   ttlDuration: 24h
